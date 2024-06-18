@@ -22,5 +22,19 @@ class Config:
             "vehicle_type_confidence",
         ]
 
+        self.VEHICLE_INTEREST_SNAPSHOT = [
+            "camera",
+            "timestamp_precise",
+            "xmin",
+            "xmax",
+            "ymin",
+            "ymax",
+            "lifetime",
+            "plate_number",
+            "similarized_plate_number",
+            "vehicle_type",
+            "vehicle_type_confidence",
+        ]
+
 
 conf = Config()
