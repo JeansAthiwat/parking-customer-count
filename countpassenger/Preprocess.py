@@ -44,12 +44,21 @@ def df_clean_vehicle(
         r"^(mbk-\d{2}-\d{2})"
     )
 
-    # format timestamp_precise to datetime
+    filtered_vehicle = convert_series_to_datetime(filtered_vehicle)
+
     return filtered_vehicle
 
 
-# def df_clean_cross(df_customer: pd.DataFrame):
-#     return filtered_customer
+def create_unix_column(df: pd.DataFrame):
+    # Convert to datetime
+    df["timestamp_unix"] = pd.to_datetime(df["timestamp_precise"], format="ISO8601")
+
+    df["lifetime_unix"] = pd.to_datetime()
+
+    return df
+
+
+# def convert_lifetime_to_datetime
 
 
 print(conf.BASE_DIR)
