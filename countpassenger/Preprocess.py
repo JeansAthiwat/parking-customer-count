@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
-from .Config import conf
+from countpassenger.Config import conf
 
 drop_label_vehicle = ['car_brand_model',
               'vehicle_type_model',
@@ -28,3 +28,4 @@ def df_clean_vehicle(df_vehicle: pd.DataFrame, drop_na:list = ['plate_number'] ,
 #     return filtered_customer
 
 
+print(conf.BASE_DIR)
