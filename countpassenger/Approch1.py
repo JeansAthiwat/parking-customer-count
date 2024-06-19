@@ -37,9 +37,7 @@ def match_cross_to_vehicle(
     return df_vehicle_copy
 
 
-def match_reverse_to_vehicle(
-    df_reverse, df_vehicle, start_padding: int = 20, stop_padding: int = 5
-):
+def match_reverse_to_vehicle(df_reverse, df_vehicle, start_padding: int = 5, stop_padding: int = 5):
 
     df_vehicle_copy = df_vehicle.copy()
     df_vehicle_copy["reverse_count"] = 0
