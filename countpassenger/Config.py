@@ -27,13 +27,13 @@ class Config:
             "timestamp_precise",
             "xmin",
             "xmax",
-            "ymin",
+            # "ymin",
             "ymax",
             "lifetime",
             "plate_number",
-            "similarized_plate_number",
+            # "similarized_plate_number",
             "vehicle_type",
-            "vehicle_type_confidence",
+            # "vehicle_type_confidence",
         ]
 
         self.CUSTOMER_INTEREST_SNAPSHOT = [

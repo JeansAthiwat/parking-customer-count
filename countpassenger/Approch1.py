@@ -8,12 +8,13 @@ import os.path as osp
 import os
 
 
-def match_cross_to_vehicle(df_cross, df_vehicle, start_padding: int = 10, stop_padding: int = 20):
+def match_cross_to_vehicle(
+    df_cross, df_vehicle, start_padding: np.int64 = 5, stop_padding: np.int64 = 5
+):
 
     df_vehicle_copy = df_vehicle.copy()
     df_vehicle_copy["cross_count"] = 0
 
-    # Iterate over each row in df_cross
     for index, row in df_cross.iterrows():
         # Find the rows in df_vehicle where the timestamp is within the range
         mask = (df_vehicle_copy["timestamp_unix"] - start_padding <= row["timestamp_unix"]) & (
@@ -26,12 +27,11 @@ def match_cross_to_vehicle(df_cross, df_vehicle, start_padding: int = 10, stop_p
 
         # Calculate the distance from the current cross to each vehicle
         distances = np.sqrt(
-            (vehicle_rows["xmax"] - row["xmin"]) ** 2 + (vehicle_rows["ymax"] - row["ymax"]) ** 2
+            (vehicle_rows["xmax"] - row["xmax"]) ** 2 + (vehicle_rows["ymax"] - row["ymax"]) ** 2
         )
-        # # Find the index of the nearest vehicle
-        nearest_index = distances.idxmin(axis=0)
 
         # Increment the cross count and mark as used for the nearest vehicle
+        nearest_index = distances.idxmin(axis=0)
         df_vehicle_copy.loc[nearest_index, "cross_count"] += 1
 
     return df_vehicle_copy
@@ -58,7 +58,7 @@ def match_reverse_to_vehicle(
 
         # Calculate the distance from the current cross to each vehicle
         distances = np.sqrt(
-            (vehicle_rows["xmax"] - row["xmin"]) ** 2 + (vehicle_rows["ymax"] - row["ymax"]) ** 2
+            (vehicle_rows["xmax"] - row["xmax"]) ** 2 + (vehicle_rows["ymax"] - row["ymax"]) ** 2
         )
         # # Find the index of the nearest vehicle
         nearest_index = distances.idxmin(axis=0)

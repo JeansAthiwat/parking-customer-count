@@ -51,9 +51,9 @@ def df_clean_vehicle(
     # clean up camera_name to camera_clean
     filtered_vehicle = df_vehicle.dropna(subset=drop_na)
     filtered_vehicle = filtered_vehicle.drop(labels=drop_label, axis=1)
-    filtered_vehicle = filtered_vehicle[
-        filtered_vehicle["vehicle_type"].isin(included_vehicle_type)
-    ]
+    # filtered_vehicle = filtered_vehicle[
+    #     filtered_vehicle["vehicle_type"].isin(included_vehicle_type)
+    # ]
     if convert_truck:
         filtered_vehicle = truck_to_bus(filtered_vehicle, threshold=0.8)
 
@@ -62,6 +62,11 @@ def df_clean_vehicle(
     )
 
     filtered_vehicle = format_datetime_column(filtered_vehicle)
+
+    # add end time stamp
+    filtered_vehicle["timestamp_unix_end"] = (
+        filtered_vehicle["timestamp_unix"] + (filtered_vehicle["lifetime"].astype(np.int64))
+    ).astype(np.int64)
 
     return filtered_vehicle
 
@@ -96,9 +101,9 @@ def df_clean_customer(
 def format_datetime_column(df: pd.DataFrame):
     # Convert to datetime
     df["timestamp_precise"] = pd.to_datetime(df["timestamp_precise"], format="ISO8601")
-    df["timestamp_unix"] = (df["timestamp_precise"] - pd.Timestamp("1970-01-01")) // pd.Timedelta(
-        "1s"
-    )
+    df["timestamp_unix"] = (
+        (df["timestamp_precise"] - pd.Timestamp("1970-01-01")) // pd.Timedelta("1s")
+    ).astype(np.int64)
 
     return df
 
@@ -112,7 +117,4 @@ def sort_df(df: pd.DataFrame, sort_conditions: list):
     return df.sort_values(by=sort_conditions)
 
 
-# def convert_lifetime_to_datetime
-
-
-print(conf.BASE_DIR)
+# print(conf.BASE_DIR)
