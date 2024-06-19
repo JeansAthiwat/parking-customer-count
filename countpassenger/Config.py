@@ -36,5 +36,14 @@ class Config:
             "vehicle_type_confidence",
         ]
 
+        self.CUSTOMER_INTEREST_SNAPSHOT = [
+            "camera",
+            "timestamp_precise",
+            "xmin",
+            "xmax",
+            "ymin",
+            "ymax",
+        ]
+
 
 conf = Config()

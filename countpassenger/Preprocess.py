@@ -44,6 +44,7 @@ def df_clean_vehicle(
     drop_na: list = [],
     drop_label: list = DROP_LABEL_VEHICLE,
     included_vehicle_type: list = ["van", "bus", "truck"],
+    convert_truck: bool = True,
 ):
     # drop N/A plate number
     # filter to only van and bus
@@ -53,6 +54,9 @@ def df_clean_vehicle(
     filtered_vehicle = filtered_vehicle[
         filtered_vehicle["vehicle_type"].isin(included_vehicle_type)
     ]
+    if convert_truck:
+        filtered_vehicle = truck_to_bus(filtered_vehicle, threshold=0.8)
+
     filtered_vehicle["camera_cleaned"] = filtered_vehicle["camera"].str.extract(
         r"^(mbk-\d{2}-\d{2})"
     )
@@ -60,6 +64,15 @@ def df_clean_vehicle(
     filtered_vehicle = format_datetime_column(filtered_vehicle)
 
     return filtered_vehicle
+
+
+def truck_to_bus(df_vehicle: pd.DataFrame, threshold: float = 0.8):
+    """if predict type as truck it might actually be a bus u know"""
+    df_vehicle.loc[
+        (df_vehicle["vehicle_type"] == "truck") & (df_vehicle["vehicle_type_confidence"] < 0.8),
+        "vehicle_type",
+    ] = "bus"
+    return df_vehicle
 
 
 def df_clean_customer(
