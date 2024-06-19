@@ -103,6 +103,11 @@ def format_datetime_column(df: pd.DataFrame):
     return df
 
 
+def filter_camera(df: pd.DataFrame, camera_name: str):
+    df = df[df["camera"] == camera_name]
+    return df
+
+
 # def convert_lifetime_to_datetime
 
 
