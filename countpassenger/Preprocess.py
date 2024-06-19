@@ -69,7 +69,7 @@ def df_clean_vehicle(
 def truck_to_bus(df_vehicle: pd.DataFrame, threshold: float = 0.8):
     """if predict type as truck it might actually be a bus u know"""
     df_vehicle.loc[
-        (df_vehicle["vehicle_type"] == "truck") & (df_vehicle["vehicle_type_confidence"] < 0.8),
+        (df_vehicle["vehicle_type"] == "truck") & (df_vehicle["vehicle_type_confidence"] < 0.6),
         "vehicle_type",
     ] = "bus"
     return df_vehicle
@@ -106,6 +106,10 @@ def format_datetime_column(df: pd.DataFrame):
 def filter_camera(df: pd.DataFrame, camera_name: str):
     df = df[df["camera"] == camera_name]
     return df
+
+
+def sort_df(df: pd.DataFrame, sort_conditions: list):
+    return df.sort_values(by=sort_conditions)
 
 
 # def convert_lifetime_to_datetime
