@@ -8,7 +8,7 @@ import os.path as osp
 import os
 
 
-def match_cross_to_vehicle(df_cross, df_vehicle, start_padding: int = 5, stop_padding: int = 20):
+def match_cross_to_vehicle(df_cross, df_vehicle, start_padding: int = 10, stop_padding: int = 20):
 
     df_vehicle_copy = df_vehicle.copy()
     df_vehicle_copy["cross_count"] = 0
