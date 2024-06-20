@@ -11,6 +11,10 @@ class Config:
         self.RESOURCES_RAW_DIR = osp.join(self.RESOURCES_DIR, "raw")
         self.RESOURCES_PROCESSED_DIR = osp.join(self.RESOURCES_DIR, "processed")
 
+        # HDBSCAN
+        self.HDBSCAN_MINIMUM_CLUSTER_SIZE = 2
+        self.HDBSCAN_MAXIMUM_CLUSTER_SIZE = 50
+
         self.VEHICLE_INTEREST = [
             "timestamp_precise",
             "plate_number",

@@ -43,30 +43,29 @@ def df_clean_vehicle(
     df_vehicle: pd.DataFrame,
     drop_na: list = [],
     drop_label: list = DROP_LABEL_VEHICLE,
+    filter_vehicle=False,
     included_vehicle_type: list = ["van", "bus", "truck"],
     convert_truck: bool = True,
 ):
-    # drop N/A plate number
-    # filter to only van and bus
-    # clean up camera_name to camera_clean
-    filtered_vehicle = df_vehicle.dropna(subset=drop_na)
+
+    filtered_vehicle = df_vehicle.dropna(subset=drop_na)  # drop N/A plate number
     filtered_vehicle = filtered_vehicle.drop(labels=drop_label, axis=1)
-    # filtered_vehicle = filtered_vehicle[
-    #     filtered_vehicle["vehicle_type"].isin(included_vehicle_type)
-    # ]
-    if convert_truck:
+
+    if filter_vehicle:  # filter to only van and bus
+        filtered_vehicle = filtered_vehicle[
+            filtered_vehicle["vehicle_type"].isin(included_vehicle_type)
+        ]
+
+    if convert_truck:  # Convert unconfident type as desired
         filtered_vehicle = truck_to_bus(filtered_vehicle, threshold=0.8)
 
     filtered_vehicle["camera_cleaned"] = filtered_vehicle["camera"].str.extract(
         r"^(mbk-\d{2}-\d{2})"
-    )
+    )  # clean up camera_name to camera_clean
 
-    filtered_vehicle = format_datetime_column(filtered_vehicle)
-
-    # add end time stamp
-    filtered_vehicle["timestamp_unix_end"] = (
-        filtered_vehicle["timestamp_unix"] + (filtered_vehicle["lifetime"].astype(np.int64))
-    ).astype(np.int64)
+    filtered_vehicle = calculate_bbox_midpoint(filtered_vehicle)
+    filtered_vehicle = format_datetime_column(filtered_vehicle)  # format to datetime obj
+    filtered_vehicle = calculate_timestamp_unix_end(filtered_vehicle)
 
     return filtered_vehicle
 
@@ -85,17 +84,33 @@ def df_clean_customer(
     drop_na: list = [],
     drop_label: list = DROP_LABEL_CUSTOMER,
 ):
-    # filter drop_labels
-    # clean up camera_name to camera_clean
-    filtered_customer = df_customer.dropna(subset=drop_na)
-    filtered_customer = filtered_customer.drop(labels=drop_label, axis=1)
+    filtered_customer = df_customer.dropna(subset=drop_na)  # drop N/A frame
+    filtered_customer = filtered_customer.drop(labels=drop_label, axis=1)  # filter drop_labels
     filtered_customer["camera_cleaned"] = filtered_customer["camera"].str.extract(
         r"^(mbk-\d{2}-\d{2})"
-    )
+    )  # clean up camera_name to camera_clean
 
     filtered_customer = format_datetime_column(filtered_customer)
+    filtered_customer = calculate_bbox_midpoint(filtered_customer)
 
     return filtered_customer
+
+
+def calculate_bbox_midpoint(df: pd.DataFrame):
+    # Calculate the midpoints
+    df["xmid"] = (df["xmin"] + df["xmax"]) / 2
+    df["ymid"] = (df["ymin"] + df["ymax"]) / 2
+
+    # Append the new columns to the DataFrame
+    df = df[["xmin", "xmax", "ymin", "ymax", "xmid", "ymid"]]
+    return df
+
+
+def calculate_timestamp_unix_end(df: pd.DataFrame):
+    df["timestamp_unix_end"] = (df["timestamp_unix"] + (df["lifetime"].astype(np.int64))).astype(
+        np.int64
+    )
+    return df
 
 
 def format_datetime_column(df: pd.DataFrame):
@@ -104,7 +119,6 @@ def format_datetime_column(df: pd.DataFrame):
     df["timestamp_unix"] = (
         (df["timestamp_precise"] - pd.Timestamp("1970-01-01")) // pd.Timedelta("1s")
     ).astype(np.int64)
-
     return df
 
 
@@ -115,6 +129,3 @@ def filter_camera(df: pd.DataFrame, camera_name: str):
 
 def sort_df(df: pd.DataFrame, sort_conditions: list):
     return df.sort_values(by=sort_conditions)
-
-
-# print(conf.BASE_DIR)
