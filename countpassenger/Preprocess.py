@@ -96,6 +96,7 @@ def df_clean_customer(
         r"^(mbk-\d{2}-\d{2})"
     )  # clean up camera_name to camera_clean
 
+    filtered_customer = calculate_bbox_midpoint(filtered_customer)
     filtered_customer = format_datetime_column(filtered_customer)
 
     return filtered_customer

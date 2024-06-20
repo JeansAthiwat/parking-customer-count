@@ -15,15 +15,18 @@ class Config:
         self.HDBSCAN_MINIMUM_CLUSTER_SIZE = 2
         self.HDBSCAN_MAXIMUM_CLUSTER_SIZE = 50
 
-        self.VEHICLE_INTEREST = [
-            "timestamp_precise",
-            "plate_number",
+        self.VEHICLE_INTEREST_NON_SNAPSHOT = [
             "camera",
+            "timestamp_precise",
             "lifetime",
-            "plate_number_confidence",
-            "similarized_plate_number",
+            "xmid",
+            "ymid",
+            "plate_number",
+            # "similarized_plate_number",
             "vehicle_type",
-            "vehicle_type_confidence",
+            # "vehicle_type_confidence",
+            "timestamp_unix",
+            "timestamp_unix_end",
         ]
 
         self.VEHICLE_INTEREST_SNAPSHOT = [
