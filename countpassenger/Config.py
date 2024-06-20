@@ -12,8 +12,22 @@ class Config:
         self.RESOURCES_PROCESSED_DIR = osp.join(self.RESOURCES_DIR, "processed")
 
         # HDBSCAN
-        self.HDBSCAN_MINIMUM_CLUSTER_SIZE = 2
-        self.HDBSCAN_MAXIMUM_CLUSTER_SIZE = 50
+        self.HDBSCAN_PARAMS = dict(
+            min_cluster_size=2,
+            min_samples=None,
+            cluster_selection_epsilon=0.0,
+            max_cluster_size=50,
+            metric="euclidean",
+            metric_params=None,
+            alpha=1.0,
+            algorithm="auto",
+            leaf_size=40,
+            n_jobs=None,
+            cluster_selection_method="eom",
+            allow_single_cluster=False,
+            store_centers=None,
+            copy=False,
+        )
 
         self.VEHICLE_INTEREST_NON_SNAPSHOT = [
             "camera",
