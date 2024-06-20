@@ -12,6 +12,7 @@ class Config:
         self.RESOURCES_PROCESSED_DIR = osp.join(self.RESOURCES_DIR, "processed")
 
         # HDBSCAN
+        # TODO: tune these
         self.HDBSCAN_PARAMS = dict(
             min_cluster_size=2,
             min_samples=2,
