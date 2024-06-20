@@ -65,7 +65,12 @@ def df_clean_vehicle(
 
     filtered_vehicle = calculate_bbox_midpoint(filtered_vehicle)
     filtered_vehicle = format_datetime_column(filtered_vehicle)  # format to datetime obj
-    filtered_vehicle = calculate_timestamp_unix_end(filtered_vehicle)
+
+    filtered_vehicle["timestamp_unix_end"] = (
+        filtered_vehicle["timestamp_unix"] + (filtered_vehicle["lifetime"].astype(np.int64))
+    ).astype(
+        np.int64
+    )  # add end time stamp
 
     return filtered_vehicle
 
@@ -84,6 +89,7 @@ def df_clean_customer(
     drop_na: list = [],
     drop_label: list = DROP_LABEL_CUSTOMER,
 ):
+
     filtered_customer = df_customer.dropna(subset=drop_na)  # drop N/A frame
     filtered_customer = filtered_customer.drop(labels=drop_label, axis=1)  # filter drop_labels
     filtered_customer["camera_cleaned"] = filtered_customer["camera"].str.extract(
@@ -91,7 +97,6 @@ def df_clean_customer(
     )  # clean up camera_name to camera_clean
 
     filtered_customer = format_datetime_column(filtered_customer)
-    filtered_customer = calculate_bbox_midpoint(filtered_customer)
 
     return filtered_customer
 
@@ -101,15 +106,6 @@ def calculate_bbox_midpoint(df: pd.DataFrame):
     df["xmid"] = (df["xmin"] + df["xmax"]) / 2
     df["ymid"] = (df["ymin"] + df["ymax"]) / 2
 
-    # Append the new columns to the DataFrame
-    df = df[["xmin", "xmax", "ymin", "ymax", "xmid", "ymid"]]
-    return df
-
-
-def calculate_timestamp_unix_end(df: pd.DataFrame):
-    df["timestamp_unix_end"] = (df["timestamp_unix"] + (df["lifetime"].astype(np.int64))).astype(
-        np.int64
-    )
     return df
 
 
