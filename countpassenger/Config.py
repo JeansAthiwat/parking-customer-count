@@ -14,11 +14,12 @@ class Config:
         # HDBSCAN
         self.HDBSCAN_PARAMS = dict(
             min_cluster_size=2,
-            min_samples=None,
+            min_samples=2,
             cluster_selection_epsilon=0.0,
             max_cluster_size=50,
-            metric="euclidean",
-            metric_params=None,
+            # specify yourown
+            # metric="euclidean",
+            # metric_params=None,
             alpha=1.0,
             algorithm="auto",
             leaf_size=40,
@@ -60,10 +61,8 @@ class Config:
         self.CUSTOMER_INTEREST_SNAPSHOT = [
             "camera",
             "timestamp_precise",
-            "xmin",
-            "xmax",
-            "ymin",
-            "ymax",
+            "xmid",
+            "ymid",
         ]
 
 
