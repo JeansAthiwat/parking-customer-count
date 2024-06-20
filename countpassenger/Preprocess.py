@@ -59,10 +59,6 @@ def df_clean_vehicle(
     if convert_truck:  # Convert unconfident type as desired
         filtered_vehicle = truck_to_bus(filtered_vehicle, threshold=0.8)
 
-    filtered_vehicle["camera_cleaned"] = filtered_vehicle["camera"].str.extract(
-        r"^(mbk-\d{2}-\d{2})"
-    )  # clean up camera_name to camera_clean
-
     filtered_vehicle = calculate_bbox_midpoint(filtered_vehicle)
     filtered_vehicle = format_datetime_column(filtered_vehicle)  # format to datetime obj
 
@@ -92,9 +88,6 @@ def df_clean_customer(
 
     filtered_customer = df_customer.dropna(subset=drop_na)  # drop N/A frame
     filtered_customer = filtered_customer.drop(labels=drop_label, axis=1)  # filter drop_labels
-    filtered_customer["camera_cleaned"] = filtered_customer["camera"].str.extract(
-        r"^(mbk-\d{2}-\d{2})"
-    )  # clean up camera_name to camera_clean
 
     filtered_customer = calculate_bbox_midpoint(filtered_customer)
     filtered_customer = format_datetime_column(filtered_customer)
