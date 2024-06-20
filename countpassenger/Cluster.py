@@ -109,7 +109,7 @@ def assign_cluster_to_vehicle(
         cluster_count = cluster_row["count"]
 
         # Find all df_vehicle rows with timestamp_unix within the range
-        # TODO:  df_vehicle["timestamp_unix"] <= timestamp_min
+        # TODO: get the nearest to timestamp_min 3 index thats df_vehicle["timestamp_unix"] <= timestamp_min
         mask = (df_vehicle["timestamp_unix"] >= timestamp_min) & (
             df_vehicle["timestamp_unix"] <= timestamp_max
         )
