@@ -95,10 +95,53 @@ def create_cluster_df(data):
     return df_cluster
 
 
-def assign_cluster_to_vehicle(df_customer: pd.DataFrame, df_vehicle: pd.DataFrame):
-    """
-    pseudo code:
-    for each cluster
-    """
+def assign_cluster_to_vehicle(
+    df_vehicle: pd.DataFrame, cluster_cross: pd.DataFrame
+) -> pd.DataFrame:
+    # Ensure 'cluster_list' and 'count' columns exist in df_vehicle
+    df_vehicle["cluster_list"] = [[] for _ in range(len(df_vehicle))]
+    df_vehicle["count"] = 0
+
+    for _, cluster_row in cluster_cross.iterrows():
+        cluster_id = cluster_row["cluster_id"]
+        timestamp_min = cluster_row["timestamp_unix_min"]
+        timestamp_max = cluster_row["timestamp_unix_max"]
+        cluster_count = cluster_row["count"]
+
+        # Find all df_vehicle rows with timestamp_unix within the range
+        # TODO:  df_vehicle["timestamp_unix"] <= timestamp_min
+        mask = (df_vehicle["timestamp_unix"] >= timestamp_min) & (
+            df_vehicle["timestamp_unix"] <= timestamp_max
+        )
+        matching_indices = df_vehicle.index[mask].tolist()
+
+        if len(matching_indices) > 1:
+            # Multiple matches: find the nearest based on (xmid, ymid) distance
+            distances = [
+                np.sqrt(
+                    (df_vehicle.loc[i, "xmid"] - cluster_row["xmid_mean"]) ** 2
+                    + (df_vehicle.loc[i, "ymid"] - cluster_row["ymid_mean"]) ** 2
+                )
+                for i in matching_indices
+            ]
+            nearest_index = matching_indices[np.argmin(distances)]
+            df_vehicle.at[nearest_index, "cluster_list"].append(cluster_id)
+            df_vehicle.at[nearest_index, "count"] += cluster_count
+
+        elif len(matching_indices) == 1:
+            # Single match: directly assign
+            index = matching_indices[0]
+            df_vehicle.at[index, "cluster_list"].append(cluster_id)
+            df_vehicle.at[index, "count"] += cluster_count
+
+        else:
+            # No match: assign to the first df_vehicle where timestamp_unix is more than timestamp_max
+            future_mask = df_vehicle["timestamp_unix"] > timestamp_max
+            future_indices = df_vehicle.index[future_mask].tolist()
+
+            if future_indices:
+                index = future_indices[0]
+                df_vehicle.at[index, "cluster_list"].append(cluster_id)
+                df_vehicle.at[index, "count"] += cluster_count
 
     return df_vehicle

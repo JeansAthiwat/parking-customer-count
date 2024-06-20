@@ -66,5 +66,21 @@ class Config:
             "ymid",
         ]
 
+        self.VEHICLE_INTEREST_NON_SNAPSHOT_CLUSTERED = [
+            "camera",
+            "timestamp_precise",
+            "lifetime",
+            "xmid",
+            "ymid",
+            "plate_number",
+            # "similarized_plate_number",
+            "vehicle_type",
+            # "vehicle_type_confidence",
+            "timestamp_unix",
+            "timestamp_unix_end",
+            "count",
+            "cluster_list",
+        ]
+
 
 conf = Config()
