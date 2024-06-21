@@ -112,5 +112,18 @@ class Config:
             "cluster_reverse_list",
         ]
 
+        self.VEHICLE_INTEREST_SNAPSHOT_CLUSTERED = [
+            "camera",
+            "timestamp_precise",
+            "count_cross",
+            "count_reverse",
+            "vehicle_type",
+            "cluster_cross_list",
+            "cluster_reverse_list",
+            "plate_number",
+            "xmid",
+            "ymid",
+        ]
+
 
 conf = Config()
