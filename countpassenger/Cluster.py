@@ -51,6 +51,22 @@ def time_biased_distance1(point1, point2):
     return spatial_distance + time_difference
 
 
+def smooth_transition(x, n=TIME_BIASED, k=1000):
+    """Smooth transition function from linear to exponential behavior."""
+    sigmoid = 1 / (1 + np.exp(-k * (x - n)))
+    linear_part = x
+    exponential_part = np.exp(x - n) + n - 1
+    return linear_part * (1 - sigmoid) + exponential_part * sigmoid
+
+
+def time_biased_distance4(point1, point2):
+    spatial_distance = np.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
+    time_difference = np.abs(point1[2] - point2[2])
+    time_distance = smooth_transition(time_difference)
+
+    return spatial_distance * 0.1 + time_distance
+
+
 def perform_cross_clustering(df_cross: pd.DataFrame, params: dict = conf.HDBSCAN_PARAMS):
 
     # ################ WHY? ###########
@@ -74,14 +90,9 @@ def perform_cross_clustering(df_cross: pd.DataFrame, params: dict = conf.HDBSCAN
     # #################################
 
     data = df_cross[["xmid", "ymid", "timestamp_unix"]].values
-    clusterer = HDBSCAN(
-        **conf.HDBSCAN_PARAMS, metric="euclidean"
-    )  # Apply HDBSCAN time_biased_distance3
+    clusterer = HDBSCAN(**conf.HDBSCAN_PARAMS, metric=time_biased_distance4)
     clusters = clusterer.fit_predict(data)
     df_cross["cluster"] = clusters
-    # cluster_cross = create_cluster_df(
-    #     [(x, y, t.astype(np.int64), res.astype(np.int64)) for (x, y, t), res in zip(data, clusters)]
-    # )
     cluster_cross = create_cluster_df([(x, y, t, res) for (x, y, t), res in zip(data, clusters)])
 
     return df_cross, cluster_cross
