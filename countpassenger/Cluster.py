@@ -134,7 +134,7 @@ def create_cluster_df(data):
     return df_cluster
 
 
-def assign_cluster_to_vehicle(
+def assign_vehicle_to_cluster(
     df_vehicle: pd.DataFrame, cluster_cross: pd.DataFrame
 ) -> pd.DataFrame:
     # Ensure 'cluster_list' and 'count' columns exist in df_vehicle
@@ -169,7 +169,7 @@ def assign_cluster_to_vehicle(
 
         # Ensure no duplicate indices
         matching_indices = list(set(matching_indices))
-        print(matching_indices)
+        # print(matching_indices)
         ####
 
         # # Find all df_vehicle rows with timestamp_unix within the range
