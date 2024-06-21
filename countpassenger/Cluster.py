@@ -62,14 +62,6 @@ def smooth_transition(x, n=TIME_BIASED, k=1000):
 def time_biased_distance4(point1, point2):
     spatial_distance = np.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
     time_difference = np.abs(point1[2] - point2[2])
-    time_distance = smooth_transition(time_difference, 4)
-
-    return spatial_distance * 0.1 + time_distance
-
-
-def time_biased_distance_for_reverse1(point1, point2):
-    spatial_distance = np.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
-    time_difference = np.abs(point1[2] - point2[2])
     time_distance = smooth_transition(time_difference)
 
     return spatial_distance * 0.1 + time_distance
@@ -89,7 +81,7 @@ def perform_cross_clustering(df_cross: pd.DataFrame, params: dict = conf.HDBSCAN
 def perform_reverse_clustering(df_reverse: pd.DataFrame, params: dict = conf.HDBSCAN_PARAMS):
 
     data = df_reverse[["xmid", "ymid", "timestamp_unix"]].values
-    clusterer = HDBSCAN(**conf.HDBSCAN_PARAMS, metric=time_biased_distance_for_reverse1)
+    clusterer = HDBSCAN(**conf.HDBSCAN_PARAMS, metric=time_biased_distance4)
     clusters = clusterer.fit_predict(data)
     df_reverse["cluster"] = clusters
     cluster_reverse = create_cluster_df([(x, y, t, res) for (x, y, t), res in zip(data, clusters)])
@@ -137,12 +129,12 @@ def assign_cross_cluster_to_vehicle_in_lifetime(
     df_vehicle: pd.DataFrame, cluster_cross: pd.DataFrame, distance_metric: str = "cosim"
 ) -> pd.DataFrame:
 
-    df_vehicle["cluster_list"] = [[] for _ in range(len(df_vehicle))]
-    df_vehicle["count"] = 0
+    df_vehicle["cluster_cross_list"] = [[] for _ in range(len(df_vehicle))]
+    df_vehicle["count_cross"] = 0
 
     for i, vehicle in df_vehicle.iterrows():
-        cluster_list = []
-        count = 0
+        cluster_cross_list = []
+        count_cross = 0
 
         for j, cluster in cluster_cross.iterrows():
             if (
@@ -168,10 +160,54 @@ def assign_cross_cluster_to_vehicle_in_lifetime(
                 if (distance_metric == "euclidean" and distance < 700) or (
                     distance_metric == "cosim" and distance > 0.98
                 ):
-                    cluster_list.append(cluster["cluster_id"])
-                    count += cluster["count"]
+                    cluster_cross_list.append(cluster["cluster_id"])
+                    count_cross += cluster["count"]
 
-        df_vehicle.at[i, "cluster_list"] = cluster_list
-        df_vehicle.at[i, "count"] = count
+        df_vehicle.at[i, "cluster_cross_list"] = cluster_cross_list
+        df_vehicle.at[i, "count_cross"] = count_cross
+
+    return df_vehicle
+
+
+def assign_reverse_cluster_to_vehicle_in_lifetime(
+    df_vehicle: pd.DataFrame, cluster_reverse: pd.DataFrame, distance_metric: str = "cosim"
+) -> pd.DataFrame:
+
+    df_vehicle["cluster_reverse_list"] = [[] for _ in range(len(df_vehicle))]
+    df_vehicle["count_reverse"] = 0
+
+    for i, vehicle in df_vehicle.iterrows():
+        cluster_reverse_list = []
+        count_reverse = 0
+
+        for j, cluster in cluster_reverse.iterrows():
+            if (
+                (vehicle["timestamp_unix"] - 5)
+                <= cluster["timestamp_unix_min"]
+                <= cluster["timestamp_unix_max"]
+                <= vehicle["timestamp_unix_end"]
+            ):
+                if distance_metric == "euclidean":
+                    distance = np.sqrt(
+                        (cluster["xmid_mean"] - vehicle["xmid"]) ** 2
+                        + (cluster["ymid_mean"] - vehicle["ymid"]) ** 2
+                    )
+                elif distance_metric == "cosim":
+                    distance = (
+                        cluster["xmid_mean"] * vehicle["xmid"]
+                        + cluster["ymid_mean"] * vehicle["ymid"]
+                    ) / (
+                        np.sqrt(cluster["xmid_mean"] ** 2 + cluster["ymid_mean"] ** 2)
+                        * np.sqrt(vehicle["xmid"] ** 2 + vehicle["ymid"] ** 2)
+                    )
+
+                if (distance_metric == "euclidean" and distance < 700) or (
+                    distance_metric == "cosim" and distance > 0.90
+                ):
+                    cluster_reverse_list.append(cluster["cluster_id"])
+                    count_reverse += cluster["count"]
+
+        df_vehicle.at[i, "cluster_reverse_list"] = cluster_reverse_list
+        df_vehicle.at[i, "count_reverse"] = count_reverse
 
     return df_vehicle

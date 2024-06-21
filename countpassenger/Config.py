@@ -107,10 +107,12 @@ class Config:
             # "similarized_plate_number",
             "vehicle_type",
             # "vehicle_type_confidence",
-            "timestamp_unix",
-            "timestamp_unix_end",
-            "count",
-            "cluster_list",
+            # "timestamp_unix",
+            # "timestamp_unix_end",
+            "count_cross",
+            "count_reverse",
+            "cluster_cross_list",
+            "cluster_reverse_list",
         ]
 
 
