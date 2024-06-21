@@ -11,7 +11,7 @@ CAPTURE_WINDOWS = 45  # seconds
 
 
 def match_cross_cluster_snapshot_to_vehicle(
-    df_vehicle_snapshot: pd.DataFrame, cluster_cross: pd.DataFrame
+    df_vehicle_snapshot: pd.DataFrame, cluster_cross: pd.DataFrame, capture_window: int = CAPTURE_WINDOWS
 ) -> pd.DataFrame:
 
     df_vehicle_snapshot["cluster_cross_list"] = [[] for _ in range(len(df_vehicle_snapshot))]
@@ -20,8 +20,8 @@ def match_cross_cluster_snapshot_to_vehicle(
     ###
     for index, row in cluster_cross.iterrows():
         # Find the rows in df_vehicle where the timestamp is within the range
-        mask = (row["timestamp_unix_min"] - CAPTURE_WINDOWS <= df_vehicle_snapshot["timestamp_unix"]) & (
-            df_vehicle_snapshot["timestamp_unix"] + CAPTURE_WINDOWS <= row["timestamp_unix_max"]
+        mask = (row["timestamp_unix_min"] - capture_window <= df_vehicle_snapshot["timestamp_unix"]) & (
+            df_vehicle_snapshot["timestamp_unix"] <= row["timestamp_unix_max"] + capture_window
         )
         vehicle_rows = df_vehicle_snapshot[mask]
         if vehicle_rows.empty:
@@ -41,7 +41,7 @@ def match_cross_cluster_snapshot_to_vehicle(
 
 
 def match_reverse_cluster_snapshot_to_vehicle(
-    df_vehicle_snapshot: pd.DataFrame, cluster_reverse: pd.DataFrame
+    df_vehicle_snapshot: pd.DataFrame, cluster_reverse: pd.DataFrame, capture_window: int = CAPTURE_WINDOWS
 ) -> pd.DataFrame:
 
     df_vehicle_snapshot["cluster_reverse_list"] = [[] for _ in range(len(df_vehicle_snapshot))]
@@ -50,8 +50,8 @@ def match_reverse_cluster_snapshot_to_vehicle(
     ###
     for index, row in cluster_reverse.iterrows():
         # Find the rows in df_vehicle where the timestamp is within the range
-        mask = (row["timestamp_unix_min"] - CAPTURE_WINDOWS <= df_vehicle_snapshot["timestamp_unix"]) & (
-            df_vehicle_snapshot["timestamp_unix"] + CAPTURE_WINDOWS <= row["timestamp_unix_max"]
+        mask = (row["timestamp_unix_min"] - capture_window <= df_vehicle_snapshot["timestamp_unix"]) & (
+            df_vehicle_snapshot["timestamp_unix"] <= row["timestamp_unix_max"] + capture_window
         )
         vehicle_rows = df_vehicle_snapshot[mask]
         if vehicle_rows.empty:
