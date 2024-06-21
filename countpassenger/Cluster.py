@@ -116,13 +116,13 @@ def create_cluster_df(data):
 
     df_cluster = grouped.rename(columns={"cluster": "cluster_id"})
 
-    df_cluster["timestamp_min"] = pd.to_datetime(
-        df_cluster["timestamp_unix_min"], unit="s"
-    ).dt.strftime("%Y-%m-%d %H:%M:%S")
+    df_cluster["timestamp_min"] = pd.to_datetime(df_cluster["timestamp_unix_min"], unit="s").dt.strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
 
-    df_cluster["timestamp_max"] = pd.to_datetime(
-        df_cluster["timestamp_unix_max"], unit="s"
-    ).dt.strftime("%Y-%m-%d %H:%M:%S")
+    df_cluster["timestamp_max"] = pd.to_datetime(df_cluster["timestamp_unix_max"], unit="s").dt.strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
 
     return df_cluster
 
@@ -137,6 +137,7 @@ def assign_cross_cluster_to_vehicle_in_lifetime(
     # Extract relevant columns for faster access
     cluster_timestamps_min = cluster_cross["timestamp_unix_min"].values
     cluster_timestamps_max = cluster_cross["timestamp_unix_max"].values
+    cluster_timestamps_mean = cluster_cross["timestamp_unix_mean"].values
     cluster_xmid_mean = cluster_cross["xmid_mean"].values
     cluster_ymid_mean = cluster_cross["ymid_mean"].values
     cluster_ids = cluster_cross["cluster_id"].values
@@ -145,8 +146,8 @@ def assign_cross_cluster_to_vehicle_in_lifetime(
     # Iterate over each vehicle
     for i, vehicle in df_vehicle.iterrows():
         # Boolean mask for clusters within the vehicle's lifetime
-        in_lifetime_mask = (cluster_timestamps_min >= vehicle["timestamp_unix"]) & (
-            cluster_timestamps_max <= vehicle["timestamp_unix_end"] + PAD_END
+        in_lifetime_mask = (cluster_timestamps_mean >= vehicle["timestamp_unix"]) & (
+            cluster_timestamps_mean <= vehicle["timestamp_unix_end"] + 6
         )
 
         # Filter clusters within the vehicle's lifetime
@@ -171,20 +172,17 @@ def assign_cross_cluster_to_vehicle_in_lifetime(
             elif distance_metric == "cosim":
                 # Calculate cosine similarity
                 dot_products = (
-                    relevant_clusters_xmid * vehicle["xmid"]
-                    + relevant_clusters_ymid * vehicle["ymid"]
+                    relevant_clusters_xmid * vehicle["xmid"] + relevant_clusters_ymid * vehicle["ymid"]
                 )
-                magnitudes = np.sqrt(
-                    relevant_clusters_xmid**2 + relevant_clusters_ymid**2
-                ) * np.sqrt(vehicle["xmid"] ** 2 + vehicle["ymid"] ** 2)
+                magnitudes = np.sqrt(relevant_clusters_xmid**2 + relevant_clusters_ymid**2) * np.sqrt(
+                    vehicle["xmid"] ** 2 + vehicle["ymid"] ** 2
+                )
                 cosine_similarities = dot_products / magnitudes
                 # Mask for clusters with high cosine similarity
                 within_distance_mask = cosine_similarities > 0.93
 
             # Assign clusters and counts to the vehicle
-            df_vehicle.at[i, "cluster_cross_list"] = list(
-                relevant_cluster_ids[within_distance_mask]
-            )
+            df_vehicle.at[i, "cluster_cross_list"] = list(relevant_cluster_ids[within_distance_mask])
             df_vehicle.at[i, "count_cross"] = np.sum(relevant_cluster_counts[within_distance_mask])
 
     return df_vehicle
@@ -234,22 +232,17 @@ def assign_reverse_cluster_to_vehicle_in_lifetime(
             elif distance_metric == "cosim":
                 # Calculate cosine similarity
                 dot_products = (
-                    relevant_clusters_xmid * vehicle["xmid"]
-                    + relevant_clusters_ymid * vehicle["ymid"]
+                    relevant_clusters_xmid * vehicle["xmid"] + relevant_clusters_ymid * vehicle["ymid"]
                 )
-                magnitudes = np.sqrt(
-                    relevant_clusters_xmid**2 + relevant_clusters_ymid**2
-                ) * np.sqrt(vehicle["xmid"] ** 2 + vehicle["ymid"] ** 2)
+                magnitudes = np.sqrt(relevant_clusters_xmid**2 + relevant_clusters_ymid**2) * np.sqrt(
+                    vehicle["xmid"] ** 2 + vehicle["ymid"] ** 2
+                )
                 cosine_similarities = dot_products / magnitudes
                 # Mask for clusters with high cosine similarity
                 within_distance_mask = cosine_similarities > 0.90
 
             # Assign clusters and counts to the vehicle
-            df_vehicle.at[i, "cluster_reverse_list"] = list(
-                relevant_cluster_ids[within_distance_mask]
-            )
-            df_vehicle.at[i, "count_reverse"] = np.sum(
-                relevant_cluster_counts[within_distance_mask]
-            )
+            df_vehicle.at[i, "cluster_reverse_list"] = list(relevant_cluster_ids[within_distance_mask])
+            df_vehicle.at[i, "count_reverse"] = np.sum(relevant_cluster_counts[within_distance_mask])
 
     return df_vehicle
