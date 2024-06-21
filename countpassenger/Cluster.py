@@ -69,26 +69,6 @@ def time_biased_distance4(point1, point2):
 
 def perform_cross_clustering(df_cross: pd.DataFrame, params: dict = conf.HDBSCAN_PARAMS):
 
-    # ################ WHY? ###########
-    # scaler_xy = StandardScaler()
-    # df_cross[["xmid_std", "ymid_std"]] = scaler_xy.fit_transform(df_cross[["xmid", "ymid"]])
-    # scaler_time = StandardScaler()
-    # df_cross[["timestamp_unix_std"]] = scaler_time.fit_transform(df_cross[["timestamp_unix"]])
-    # data = df_cross[["xmid_std", "ymid_std", "timestamp_unix_std"]].values
-
-    # clusterer = HDBSCAN(
-    #     **conf.HDBSCAN_PARAMS, metric="euclidean"
-    # )  # Apply HDBSCAN time_biased_distance3
-    # clusters = clusterer.fit_predict(data)
-    # df_cross["cluster"] = clusters
-    # cluster_cross = create_cluster_df(
-    #     [
-    #         (x, y, t, res)
-    #         for (x, y, t), res in zip(df_cross[["xmid", "ymid", "timestamp_unix"]].values, clusters)
-    #     ]
-    # )
-    # #################################
-
     data = df_cross[["xmid", "ymid", "timestamp_unix"]].values
     clusterer = HDBSCAN(**conf.HDBSCAN_PARAMS, metric=time_biased_distance4)
     clusters = clusterer.fit_predict(data)
@@ -134,114 +114,24 @@ def create_cluster_df(data):
     return df_cluster
 
 
-def assign_vehicle_to_cluster(
-    df_vehicle: pd.DataFrame, cluster_cross: pd.DataFrame
-) -> pd.DataFrame:
-    # Ensure 'cluster_list' and 'count' columns exist in df_vehicle
-    df_vehicle["cluster_list"] = [[] for _ in range(len(df_vehicle))]
-    df_vehicle["count"] = 0
-
-    for _, cluster_row in cluster_cross.iterrows():
-        cluster_id = cluster_row["cluster_id"]
-        timestamp_min = cluster_row["timestamp_unix_min"]
-        timestamp_max = cluster_row["timestamp_unix_max"]
-        cluster_count = cluster_row["count"]
-
-        ####
-        # Find the first 2 indices <= timestamp_min   # 5minute
-        indices_before = df_vehicle.index[
-            (df_vehicle["timestamp_unix"] <= timestamp_min)
-            & (timestamp_min - df_vehicle["timestamp_unix"] < 60)
-        ].tolist()
-        if len(indices_before) > 2:
-            indices_before = indices_before[-2:]
-
-        # Find the next 2 indices >= timestamp_max
-        indices_after = df_vehicle.index[
-            (df_vehicle["timestamp_unix"] >= timestamp_max)
-            & (df_vehicle["timestamp_unix"] - timestamp_max < 60)
-        ].tolist()
-        if len(indices_after) > 2:
-            indices_after = indices_after[:2]
-
-        # Combine these indices
-        matching_indices = indices_before + indices_after
-
-        # Ensure no duplicate indices
-        matching_indices = list(set(matching_indices))
-        # print(matching_indices)
-        ####
-
-        # # Find all df_vehicle rows with timestamp_unix within the range
-        # # TODO: change mask condition where df_vehicle["timestamp_unix"] should be the first 2 index that is <= timestamp_min or the next 2 index that is >= timestamp_max
-        # mask = (df_vehicle["timestamp_unix"] >= timestamp_min) & (
-        #     df_vehicle["timestamp_unix"] <= timestamp_max
-        # )
-        # # END OF TODO#
-
-        # matching_indices = df_vehicle.index[mask].tolist()
-
-        if len(matching_indices) > 1:
-            # Multiple matches: find the nearest based on (xmid, ymid) distance
-            distances = [
-                np.sqrt(
-                    (df_vehicle.loc[i, "xmid"] - cluster_row["xmid_mean"]) ** 2
-                    + (df_vehicle.loc[i, "ymid"] - cluster_row["ymid_mean"]) ** 2
-                )
-                for i in matching_indices
-            ]
-            nearest_index = matching_indices[np.argmin(distances)]
-            df_vehicle.at[nearest_index, "cluster_list"].append(cluster_id)
-            df_vehicle.at[nearest_index, "count"] += cluster_count
-
-        elif len(matching_indices) == 1:
-            # Single match: directly assign
-            index = matching_indices[0]
-            df_vehicle.at[index, "cluster_list"].append(cluster_id)
-            df_vehicle.at[index, "count"] += cluster_count
-
-        else:
-            # No match: assign to the first df_vehicle where timestamp_unix is more than timestamp_max
-            future_mask = df_vehicle["timestamp_unix"] > timestamp_max
-            future_indices = df_vehicle.index[future_mask].tolist()
-
-            if future_indices:
-                index = future_indices[0]
-                df_vehicle.at[index, "cluster_list"].append(cluster_id)
-                df_vehicle.at[index, "count"] += cluster_count
-
-    return df_vehicle
-
-
-# def assign_cluster_to_vehicle_in_lifetime(df_vehicle: pd.DataFrame, cluster_cross: pd.DataFrame):
-
-#     # mask to get every cluster_cross['timestamp_unix_min'] in range(df_vehicle['timestamp_unix'], df_vehicle['timestamp_unix_end'])
-#     # if L2 distance between (cluster_cross['xmid_mean'] cluster_cross['ymid_mean']) to (df_vehicle['xmid'] df_vehicle['ymid']) less than 600 then
-#     #   assign df_vehicle['cluster_list'].append(that cluster_row["cluster_id"])
-#     #   assign df_vehicle['count '] += (that cluster_row["count"])
-
-#     return df_vehicle
-
-
 def assign_cross_cluster_to_vehicle_in_lifetime(
     df_vehicle: pd.DataFrame, cluster_cross: pd.DataFrame, distance_metric: str = "cosim"
 ) -> pd.DataFrame:
-    # Iterate over each vehicle
+
+    df_vehicle["cluster_list"] = [[] for _ in range(len(df_vehicle))]
+    df_vehicle["count"] = 0
+
     for i, vehicle in df_vehicle.iterrows():
-        # Initialize an empty list for the cluster_list and a count variable
         cluster_list = []
         count = 0
 
-        # Iterate over each cluster
         for j, cluster in cluster_cross.iterrows():
-            # Check if the cluster's timestamp is within the vehicle's lifetime
             if (
                 vehicle["timestamp_unix"]
                 <= cluster["timestamp_unix_min"]
                 <= cluster["timestamp_unix_max"]
                 <= vehicle["timestamp_unix_end"]
             ):
-                # Calculate the L2 distance between the vehicle's coordinates and the cluster's coordinates
                 if distance_metric == "euclidean":
                     distance = np.sqrt(
                         (cluster["xmid_mean"] - vehicle["xmid"]) ** 2
@@ -256,16 +146,12 @@ def assign_cross_cluster_to_vehicle_in_lifetime(
                         * np.sqrt(vehicle["xmid"] ** 2 + vehicle["ymid"] ** 2)
                     )
 
-                # Check if the distance is less than 600
                 if (distance_metric == "euclidean" and distance < 700) or (
                     distance_metric == "cosim" and distance > 0.98
                 ):
-                    # Add the cluster_id to the vehicle's cluster_list
                     cluster_list.append(cluster["cluster_id"])
-                    # Increment the vehicle's count by the cluster's count
                     count += cluster["count"]
 
-        # Assign the cluster_list and count to the vehicle
         df_vehicle.at[i, "cluster_list"] = cluster_list
         df_vehicle.at[i, "count"] = count
 
