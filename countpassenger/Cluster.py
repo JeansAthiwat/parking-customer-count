@@ -223,7 +223,7 @@ def assign_vehicle_to_cluster(
 #     return df_vehicle
 
 
-def assign_cluster_to_vehicle_in_lifetime(
+def assign_cross_cluster_to_vehicle_in_lifetime(
     df_vehicle: pd.DataFrame, cluster_cross: pd.DataFrame, distance_metric: str = "cosim"
 ) -> pd.DataFrame:
     # Iterate over each vehicle
@@ -238,6 +238,7 @@ def assign_cluster_to_vehicle_in_lifetime(
             if (
                 vehicle["timestamp_unix"]
                 <= cluster["timestamp_unix_min"]
+                <= cluster["timestamp_unix_max"]
                 <= vehicle["timestamp_unix_end"]
             ):
                 # Calculate the L2 distance between the vehicle's coordinates and the cluster's coordinates
