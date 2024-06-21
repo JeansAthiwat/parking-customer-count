@@ -8,9 +8,7 @@ import os.path as osp
 import os
 
 
-def match_cross_to_vehicle(
-    df_cross, df_vehicle, start_padding: np.int64 = 5, stop_padding: np.int64 = 5
-):
+def match_cross_to_vehicle(df_cross, df_vehicle, start_padding: np.int64 = 5, stop_padding: np.int64 = 5):
 
     df_vehicle_copy = df_vehicle.copy()
     df_vehicle_copy["cross_count"] = 0
