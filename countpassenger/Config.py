@@ -70,15 +70,14 @@ class Config:
         self.VEHICLE_INTEREST_SNAPSHOT = [
             "camera",
             "timestamp_precise",
-            "xmid",
-            "ymid",
-            "lifetime",
-            "plate_number",
-            # "similarized_plate_number",
-            "vehicle_type",
-            # "vehicle_type_confidence",
             "timestamp_unix",
             "timestamp_unix_end",
+            # "similarized_plate_number",
+            "vehicle_type",
+            "xmid",
+            "ymid",
+            "plate_number",
+            # "vehicle_type_confidence",
         ]
 
         self.CUSTOMER_INTEREST_SNAPSHOT = [

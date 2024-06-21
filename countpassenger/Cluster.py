@@ -72,7 +72,7 @@ def time_biased_distance4(point1, point2):
 def perform_cross_clustering(df_cross: pd.DataFrame, params: dict = conf.HDBSCAN_PARAMS):
 
     data = df_cross[["xmid", "ymid", "timestamp_unix"]].values
-    clusterer = HDBSCAN(**conf.HDBSCAN_PARAMS, metric=time_biased_distance4)
+    clusterer = HDBSCAN(**params, metric=time_biased_distance4)
     clusters = clusterer.fit_predict(data)
     df_cross["cluster"] = clusters
     cluster_cross = create_cluster_df([(x, y, t, res) for (x, y, t), res in zip(data, clusters)])
@@ -83,7 +83,7 @@ def perform_cross_clustering(df_cross: pd.DataFrame, params: dict = conf.HDBSCAN
 def perform_reverse_clustering(df_reverse: pd.DataFrame, params: dict = conf.HDBSCAN_PARAMS):
 
     data = df_reverse[["xmid", "ymid", "timestamp_unix"]].values
-    clusterer = HDBSCAN(**conf.HDBSCAN_PARAMS, metric=time_biased_distance4)
+    clusterer = HDBSCAN(**params, metric=time_biased_distance4)
     clusters = clusterer.fit_predict(data)
     df_reverse["cluster"] = clusters
     cluster_reverse = create_cluster_df([(x, y, t, res) for (x, y, t), res in zip(data, clusters)])
