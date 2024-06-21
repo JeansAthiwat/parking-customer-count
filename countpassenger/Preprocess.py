@@ -61,14 +61,16 @@ def df_clean_vehicle(
 
     filtered_vehicle = calculate_bbox_midpoint(filtered_vehicle)
     filtered_vehicle = format_datetime_column(filtered_vehicle)  # format to datetime obj
-
-    filtered_vehicle["timestamp_unix_end"] = (
-        filtered_vehicle["timestamp_unix"] + (filtered_vehicle["lifetime"].astype(np.int64))
-    ).astype(
-        np.int64
-    )  # add end time stamp
+    filtered_vehicle = calculate_timestamp_end(filtered_vehicle)
 
     return filtered_vehicle
+
+
+def calculate_timestamp_end(df: pd.DataFrame):
+    df["timestamp_unix_end"] = (df["timestamp_unix"] + (df["lifetime"].astype(np.int64))).astype(
+        np.int64
+    )  # add end time stamp
+    return df
 
 
 def truck_to_bus(df_vehicle: pd.DataFrame, threshold: float = 0.8):

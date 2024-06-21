@@ -211,3 +211,61 @@ def assign_vehicle_to_cluster(
                 df_vehicle.at[index, "count"] += cluster_count
 
     return df_vehicle
+
+
+# def assign_cluster_to_vehicle_in_lifetime(df_vehicle: pd.DataFrame, cluster_cross: pd.DataFrame):
+
+#     # mask to get every cluster_cross['timestamp_unix_min'] in range(df_vehicle['timestamp_unix'], df_vehicle['timestamp_unix_end'])
+#     # if L2 distance between (cluster_cross['xmid_mean'] cluster_cross['ymid_mean']) to (df_vehicle['xmid'] df_vehicle['ymid']) less than 600 then
+#     #   assign df_vehicle['cluster_list'].append(that cluster_row["cluster_id"])
+#     #   assign df_vehicle['count '] += (that cluster_row["count"])
+
+#     return df_vehicle
+
+
+def assign_cluster_to_vehicle_in_lifetime(
+    df_vehicle: pd.DataFrame, cluster_cross: pd.DataFrame, distance_metric: str = "cosim"
+) -> pd.DataFrame:
+    # Iterate over each vehicle
+    for i, vehicle in df_vehicle.iterrows():
+        # Initialize an empty list for the cluster_list and a count variable
+        cluster_list = []
+        count = 0
+
+        # Iterate over each cluster
+        for j, cluster in cluster_cross.iterrows():
+            # Check if the cluster's timestamp is within the vehicle's lifetime
+            if (
+                vehicle["timestamp_unix"]
+                <= cluster["timestamp_unix_min"]
+                <= vehicle["timestamp_unix_end"]
+            ):
+                # Calculate the L2 distance between the vehicle's coordinates and the cluster's coordinates
+                if distance_metric == "euclidean":
+                    distance = np.sqrt(
+                        (cluster["xmid_mean"] - vehicle["xmid"]) ** 2
+                        + (cluster["ymid_mean"] - vehicle["ymid"]) ** 2
+                    )
+                elif distance_metric == "cosim":
+                    distance = (
+                        cluster["xmid_mean"] * vehicle["xmid"]
+                        + cluster["ymid_mean"] * vehicle["ymid"]
+                    ) / (
+                        np.sqrt(cluster["xmid_mean"] ** 2 + cluster["ymid_mean"] ** 2)
+                        * np.sqrt(vehicle["xmid"] ** 2 + vehicle["ymid"] ** 2)
+                    )
+
+                # Check if the distance is less than 600
+                if (distance_metric == "euclidean" and distance < 700) or (
+                    distance_metric == "cosim" and distance > 0.98
+                ):
+                    # Add the cluster_id to the vehicle's cluster_list
+                    cluster_list.append(cluster["cluster_id"])
+                    # Increment the vehicle's count by the cluster's count
+                    count += cluster["count"]
+
+        # Assign the cluster_list and count to the vehicle
+        df_vehicle.at[i, "cluster_list"] = cluster_list
+        df_vehicle.at[i, "count"] = count
+
+    return df_vehicle
