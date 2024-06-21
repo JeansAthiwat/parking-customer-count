@@ -34,6 +34,25 @@ class Config:
             copy=False,
         )
 
+        # TODO: tune these
+        self.HDBSCAN_PARAMS_REVERSE = dict(
+            min_cluster_size=None,
+            min_samples=None,
+            cluster_selection_epsilon=0,  # math.sqrt(1440**2 + 2560**2) + _TIME_BIAS,
+            max_cluster_size=40,
+            # specify yourown
+            # metric="euclidean",
+            # metric_params=None,
+            alpha=1.0,
+            algorithm="brute",
+            leaf_size=40,
+            n_jobs=None,
+            cluster_selection_method="eom",
+            allow_single_cluster=False,
+            store_centers="medoid",
+            copy=False,
+        )
+
         self.VEHICLE_INTEREST_NON_SNAPSHOT = [
             "camera",
             "timestamp_precise",
