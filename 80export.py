@@ -49,14 +49,14 @@ def concatenate_csv(files, output_path):
 # ]
 # output_file = "/home/jeans/internship/parking-customer-count/resources/processed/2024-04-28_count-passengers-mbk-tourist-vehicle-object-snapshot.csv"
 
-# Example usage
-file_list = [
-    "/home/jeans/internship/parking-customer-count/resources/processed/2024-04-28/count-passengers-mbk-14-11-vehicle.csv",
-    "/home/jeans/internship/parking-customer-count/resources/processed/2024-04-28/count-passengers-mbk-14-12-vehicle.csv",
-    "/home/jeans/internship/parking-customer-count/resources/processed/2024-04-28/count-passengers-mbk-14-13-vehicle.csv",
-    "/home/jeans/internship/parking-customer-count/resources/processed/2024-04-28/count-passengers-mbk-14-14-vehicle.csv",
-]
-output_file = "/home/jeans/internship/parking-customer-count/resources/processed/2024-04-28_count-passengers-mbk-tourist-vehicle-object.csv"
+# # Example usage
+# file_list = [
+#     "/home/jeans/internship/parking-customer-count/resources/processed/2024-04-28/count-passengers-mbk-14-11-vehicle.csv",
+#     "/home/jeans/internship/parking-customer-count/resources/processed/2024-04-28/count-passengers-mbk-14-12-vehicle.csv",
+#     "/home/jeans/internship/parking-customer-count/resources/processed/2024-04-28/count-passengers-mbk-14-13-vehicle.csv",
+#     "/home/jeans/internship/parking-customer-count/resources/processed/2024-04-28/count-passengers-mbk-14-14-vehicle.csv",
+# ]
+# output_file = "/home/jeans/internship/parking-customer-count/resources/processed/2024-04-28_count-passengers-mbk-tourist-vehicle-object.csv"
 
 
 concatenate_csv(file_list, output_file)

@@ -119,7 +119,3 @@ def filter_camera(df: pd.DataFrame, camera_name: str):
 
 def sort_df(df: pd.DataFrame, sort_conditions: list):
     return df.sort_values(by=sort_conditions)
-
-
-def merge_same_car_snapshot(df_vehicle_snapshot: pd.DataFrame):
-    return

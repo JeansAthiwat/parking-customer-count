@@ -7,7 +7,7 @@ import numpy as np
 import os.path as osp
 import os
 
-CAPTURE_WINDOWS = 45  # seconds
+CAPTURE_WINDOWS = 60  # seconds
 
 
 def match_cross_cluster_snapshot_to_vehicle(
@@ -68,3 +68,8 @@ def match_reverse_cluster_snapshot_to_vehicle(
         df_vehicle_snapshot.loc[nearest_index, "reverse_count"] += row["count"]
 
     return df_vehicle_snapshot
+
+
+def merge_same_car_snapshot(df_vehicle_snapshot: pd.DataFrame):
+    # leave only the first row of that periods if df_vehicle_snapshot['plate_number'] are the same and the df_vehicle_snapshot['timestamp_precise'] diff is less than 5 minute
+    return
