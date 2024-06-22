@@ -52,9 +52,7 @@ def df_clean_vehicle(
     filtered_vehicle = filtered_vehicle.drop(labels=drop_label, axis=1)
 
     if filter_vehicle:  # filter to only van and bus
-        filtered_vehicle = filtered_vehicle[
-            filtered_vehicle["vehicle_type"].isin(included_vehicle_type)
-        ]
+        filtered_vehicle = filtered_vehicle[filtered_vehicle["vehicle_type"].isin(included_vehicle_type)]
 
     if convert_truck:  # Convert unconfident type as desired
         filtered_vehicle = truck_to_bus(filtered_vehicle, threshold=0.8)
@@ -121,3 +119,7 @@ def filter_camera(df: pd.DataFrame, camera_name: str):
 
 def sort_df(df: pd.DataFrame, sort_conditions: list):
     return df.sort_values(by=sort_conditions)
+
+
+def merge_same_car_snapshot(df_vehicle_snapshot: pd.DataFrame):
+    return
