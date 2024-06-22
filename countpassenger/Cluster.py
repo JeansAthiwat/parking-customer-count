@@ -132,7 +132,7 @@ def assign_cross_cluster_to_vehicle_in_lifetime(
 ) -> pd.DataFrame:
 
     df_vehicle["cluster_cross_list"] = [[] for _ in range(len(df_vehicle))]
-    df_vehicle["count_cross"] = 0
+    df_vehicle["cross_count"] = 0
 
     # Extract relevant columns for faster access
     cluster_timestamps_min = cluster_cross["timestamp_unix_min"].values
@@ -159,7 +159,7 @@ def assign_cross_cluster_to_vehicle_in_lifetime(
         # Direct assignment if only one cluster is within the lifetime
         if len(relevant_cluster_ids) == 1:
             df_vehicle.at[i, "cluster_cross_list"] = list(relevant_cluster_ids)
-            df_vehicle.at[i, "count_cross"] = relevant_cluster_counts[0]
+            df_vehicle.at[i, "cross_count"] = relevant_cluster_counts[0]
         else:
             if distance_metric == "euclidean":
                 # Calculate Euclidean distances
@@ -183,7 +183,7 @@ def assign_cross_cluster_to_vehicle_in_lifetime(
 
             # Assign clusters and counts to the vehicle
             df_vehicle.at[i, "cluster_cross_list"] = list(relevant_cluster_ids[within_distance_mask])
-            df_vehicle.at[i, "count_cross"] = np.sum(relevant_cluster_counts[within_distance_mask])
+            df_vehicle.at[i, "cross_count"] = np.sum(relevant_cluster_counts[within_distance_mask])
 
     return df_vehicle
 
@@ -193,7 +193,7 @@ def assign_reverse_cluster_to_vehicle_in_lifetime(
 ) -> pd.DataFrame:
 
     df_vehicle["cluster_reverse_list"] = [[] for _ in range(len(df_vehicle))]
-    df_vehicle["count_reverse"] = 0
+    df_vehicle["reverse_count"] = 0
 
     # Extract relevant columns for faster access
     cluster_timestamps_min = cluster_reverse["timestamp_unix_min"].values
@@ -219,7 +219,7 @@ def assign_reverse_cluster_to_vehicle_in_lifetime(
         # Direct assignment if only one cluster is within the lifetime
         if len(relevant_cluster_ids) == 1:
             df_vehicle.at[i, "cluster_reverse_list"] = list(relevant_cluster_ids)
-            df_vehicle.at[i, "count_reverse"] = relevant_cluster_counts[0]
+            df_vehicle.at[i, "reverse_count"] = relevant_cluster_counts[0]
         else:
             if distance_metric == "euclidean":
                 # Calculate Euclidean distances
@@ -243,6 +243,6 @@ def assign_reverse_cluster_to_vehicle_in_lifetime(
 
             # Assign clusters and counts to the vehicle
             df_vehicle.at[i, "cluster_reverse_list"] = list(relevant_cluster_ids[within_distance_mask])
-            df_vehicle.at[i, "count_reverse"] = np.sum(relevant_cluster_counts[within_distance_mask])
+            df_vehicle.at[i, "reverse_count"] = np.sum(relevant_cluster_counts[within_distance_mask])
 
     return df_vehicle

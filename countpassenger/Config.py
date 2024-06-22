@@ -106,8 +106,8 @@ class Config:
             # "similarized_plate_number",
             "vehicle_type",
             # "vehicle_type_confidence",
-            "count_cross",
-            "count_reverse",
+            "cross_count",
+            "reverse_count",
             "cluster_cross_list",
             "cluster_reverse_list",
         ]
@@ -115,8 +115,8 @@ class Config:
         self.VEHICLE_INTEREST_SNAPSHOT_CLUSTERED = [
             "camera",
             "timestamp_precise",
-            "count_cross",
-            "count_reverse",
+            "cross_count",
+            "reverse_count",
             "vehicle_type",
             "cluster_cross_list",
             "cluster_reverse_list",

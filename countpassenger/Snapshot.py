@@ -15,7 +15,7 @@ def match_cross_cluster_snapshot_to_vehicle(
 ) -> pd.DataFrame:
 
     df_vehicle_snapshot["cluster_cross_list"] = [[] for _ in range(len(df_vehicle_snapshot))]
-    df_vehicle_snapshot["count_cross"] = 0
+    df_vehicle_snapshot["cross_count"] = 0
 
     ###
     for index, row in cluster_cross.iterrows():
@@ -35,7 +35,7 @@ def match_cross_cluster_snapshot_to_vehicle(
         # Increment the cross count and mark as used for the nearest vehicle
         nearest_index = distances.idxmin(axis=0)
         df_vehicle_snapshot.loc[nearest_index, "cluster_cross_list"].append(row["cluster_id"])
-        df_vehicle_snapshot.loc[nearest_index, "count_cross"] += row["count"]
+        df_vehicle_snapshot.loc[nearest_index, "cross_count"] += row["count"]
 
     return df_vehicle_snapshot
 
@@ -45,7 +45,7 @@ def match_reverse_cluster_snapshot_to_vehicle(
 ) -> pd.DataFrame:
 
     df_vehicle_snapshot["cluster_reverse_list"] = [[] for _ in range(len(df_vehicle_snapshot))]
-    df_vehicle_snapshot["count_reverse"] = 0
+    df_vehicle_snapshot["reverse_count"] = 0
 
     ###
     for index, row in cluster_reverse.iterrows():
@@ -65,6 +65,6 @@ def match_reverse_cluster_snapshot_to_vehicle(
         # Increment the reverse count and mark as used for the nearest vehicle
         nearest_index = distances.idxmin(axis=0)
         df_vehicle_snapshot.loc[nearest_index, "cluster_reverse_list"].append(row["cluster_id"])
-        df_vehicle_snapshot.loc[nearest_index, "count_reverse"] += row["count"]
+        df_vehicle_snapshot.loc[nearest_index, "reverse_count"] += row["count"]
 
     return df_vehicle_snapshot
