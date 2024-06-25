@@ -15,10 +15,16 @@ def match_cross_to_vehicle(df_cross, df_vehicle, start_padding: np.int64 = 5, st
 
     for index, row in df_cross.iterrows():
         # Find the rows in df_vehicle where the timestamp is within the range
-        mask = (df_vehicle_copy["timestamp_unix"] - start_padding <= row["timestamp_unix"]) & (
+        mask_time = (df_vehicle_copy["timestamp_unix"] - start_padding <= row["timestamp_unix"]) & (
             df_vehicle_copy["timestamp_unix_end"] + stop_padding >= row["timestamp_unix"]
         )
-        vehicle_rows = df_vehicle_copy[mask]
+
+        mask_parked = (df_vehicle_copy["lifetime"] < 420) | (
+            (row["timestamp_unix"] <= df_vehicle_copy["timestamp_unix"] + 120)
+            | (df_vehicle_copy["timestamp_unix_end"] - 120 <= row["timestamp_unix"])
+        )
+
+        vehicle_rows = df_vehicle_copy[mask_time & mask_parked]
         if vehicle_rows.empty:
             # print('empty mask')
             continue
@@ -44,10 +50,16 @@ def match_reverse_to_vehicle(df_reverse, df_vehicle, start_padding: int = 5, sto
     for index, row in df_reverse.iterrows():
         # Find the rows in df_vehicle where the timestamp is within the range
         # print(row)
-        mask = (df_vehicle_copy["timestamp_unix"] - start_padding <= row["timestamp_unix"]) & (
+        mask_time = (df_vehicle_copy["timestamp_unix"] - start_padding <= row["timestamp_unix"]) & (
             df_vehicle_copy["timestamp_unix_end"] + stop_padding >= row["timestamp_unix"]
         )
-        vehicle_rows = df_vehicle_copy[mask]
+
+        mask_parked = (df_vehicle_copy["lifetime"] < 420) | (
+            (row["timestamp_unix"] <= df_vehicle_copy["timestamp_unix"] + 120)
+            | (df_vehicle_copy["timestamp_unix_end"] - 120 <= row["timestamp_unix"])
+        )
+
+        vehicle_rows = df_vehicle_copy[mask_time & mask_parked]
         if vehicle_rows.empty:
             # print('empty mask')
             continue
