@@ -17,7 +17,6 @@ def match_cross_cluster_snapshot_to_vehicle(
     df_vehicle_snapshot["cluster_cross_list"] = [[] for _ in range(len(df_vehicle_snapshot))]
     df_vehicle_snapshot["cross_count"] = 0
 
-    ###
     for index, row in cluster_cross.iterrows():
         # Find the rows in df_vehicle where the timestamp is within the range
         mask = (row["timestamp_unix_min"] - capture_window <= df_vehicle_snapshot["timestamp_unix"]) & (
