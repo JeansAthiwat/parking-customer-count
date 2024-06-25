@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import os
 from countpassenger.Config import conf
+from datetime import timedelta
+
 
 DROP_LABEL_VEHICLE = [
     "car_brand_model",
@@ -119,3 +121,23 @@ def filter_camera(df: pd.DataFrame, camera_name: str):
 
 def sort_df(df: pd.DataFrame, sort_conditions: list):
     return df.sort_values(by=sort_conditions)
+
+
+def snapshot_drop_parked(df_vehicle_snapshot: pd.DataFrame, windows: int = 5):
+    indices_to_drop = []
+    previous_row = None
+
+    df_vehicle_snapshot = df_vehicle_snapshot.sort_values(by=["plate_number", "timestamp_precise"])
+    for index, row in df_vehicle_snapshot.iterrows():
+        if previous_row is not None:
+            # Check if the plate_number is the same
+            if row["plate_number"] == previous_row["plate_number"]:
+                time_diff = row["timestamp_precise"] - previous_row["timestamp_precise"]
+                if time_diff < timedelta(minutes=windows):
+                    indices_to_drop.append(index)
+        previous_row = row
+
+    indices_to_drop.pop()
+    df_vehicle_snapshot = df_vehicle_snapshot.drop(indices_to_drop)
+
+    return df_vehicle_snapshot
