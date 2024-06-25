@@ -18,6 +18,8 @@ def match_cross_cluster_snapshot_to_vehicle(
     df_vehicle_snapshot["cross_count"] = 0
 
     for index, row in cluster_cross.iterrows():
+        if row["cluster_id"] == -1:
+            continue
         # Find the rows in df_vehicle where the timestamp is within the range
         mask = (row["timestamp_unix_min"] - capture_window <= df_vehicle_snapshot["timestamp_unix"]) & (
             df_vehicle_snapshot["timestamp_unix"] <= row["timestamp_unix_max"] + capture_window
@@ -48,6 +50,8 @@ def match_reverse_cluster_snapshot_to_vehicle(
 
     ###
     for index, row in cluster_reverse.iterrows():
+        if row["cluster_id"] == -1:
+            continue
         # Find the rows in df_vehicle where the timestamp is within the range
         mask = (row["timestamp_unix_min"] - capture_window <= df_vehicle_snapshot["timestamp_unix"]) & (
             df_vehicle_snapshot["timestamp_unix"] <= row["timestamp_unix_max"] + capture_window
