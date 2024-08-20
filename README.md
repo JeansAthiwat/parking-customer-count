@@ -14,7 +14,7 @@
     - CAMERA_LIST: list ของชื่อกล้องที่มี
 
     ### EXAMPLE
-    ```
+    ```.py
     # full path to the input csv files for vehicle, cross , and reverse in this order
     VEHICLE_CSV_PATH = "/home/jeans/internship/parking-customer-count/resources/raw/2024-07-01/mbk-tourist-vehicle-object-20240701-20240731.csv"
     CROSS_CSV_PATH = "/home/jeans/internship/parking-customer-count/resources/raw/2024-07-01/mbk-tourist-raw-cross-object-20240701-20240731.csv"
