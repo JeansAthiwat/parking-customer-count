@@ -18,7 +18,7 @@ CAM = "11"
 df_vehicle = pd.read_csv(
     osp.join(conf.RESOURCES_RAW_DIR, "2024-04-28/mbk-tourist-vehicle-object-20240428.csv")
 )
-df_vehicle = Preprocess.df_clean_vehicle(df_vehicle=df_vehicle, drop_na=[], convert_truck=False)
+df_vehicle = Preprocess.df_clean_vehicle(df_vehicle_raw=df_vehicle, drop_na=[], convert_truck=False)
 df_vehicle = df_vehicle[df_vehicle["camera"] == f"mbk-14-{CAM}-vehicle"]
 
 # Path to the video

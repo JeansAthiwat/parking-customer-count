@@ -76,3 +76,9 @@ def match_reverse_to_vehicle(df_reverse, df_vehicle, start_padding: int = 5, sto
         df_vehicle_copy.loc[nearest_index, "reverse_count"] += 1
 
     return df_vehicle_copy
+
+
+def predict_count(df_vehicle_processed, df_cross_processed, df_reverse_processed):
+    vehicle_with_reverse_count = match_reverse_to_vehicle(df_reverse_processed, df_vehicle_processed)
+    vehicle_with_cross_and_reverse = match_cross_to_vehicle(df_cross_processed, vehicle_with_reverse_count)
+    return vehicle_with_cross_and_reverse

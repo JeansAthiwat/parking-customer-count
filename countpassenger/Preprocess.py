@@ -42,15 +42,19 @@ IMPORTANT_LABEL_VEHICLE = [
 
 
 def df_clean_vehicle(
-    df_vehicle: pd.DataFrame,
+    df_vehicle_raw: pd.DataFrame,
     drop_na: list = [],
     drop_label: list = DROP_LABEL_VEHICLE,
+    current_camera: str = None,
     filter_vehicle=False,
     included_vehicle_type: list = ["van", "bus", "truck"],
     convert_truck: bool = True,
 ):
 
-    filtered_vehicle = df_vehicle.dropna(subset=drop_na)  # drop N/A plate number
+    assert current_camera, "the current camera name is wrong"
+    camera_name = current_camera + "-vehicle"
+
+    filtered_vehicle = df_vehicle_raw.dropna(subset=drop_na)  # drop N/A plate number
     filtered_vehicle = filtered_vehicle.drop(labels=drop_label, axis=1)
 
     if filter_vehicle:  # filter to only van and bus
@@ -62,6 +66,9 @@ def df_clean_vehicle(
     filtered_vehicle = calculate_bbox_midpoint(filtered_vehicle)
     filtered_vehicle = format_datetime_column(filtered_vehicle)  # format to datetime obj
     filtered_vehicle = calculate_timestamp_end(filtered_vehicle)
+
+    filtered_vehicle = filter_camera(filtered_vehicle, camera_name)
+    filtered_vehicle = sort_df(filtered_vehicle, conf.VEHICLE_INTEREST_NON_SNAPSHOT)
 
     return filtered_vehicle
 
@@ -84,6 +91,7 @@ def truck_to_bus(df_vehicle: pd.DataFrame, threshold: float = 0.8):
 
 def df_clean_customer(
     df_customer: pd.DataFrame,
+    current_cam: str = None,
     drop_na: list = [],
     drop_label: list = DROP_LABEL_CUSTOMER,
 ):
@@ -93,6 +101,11 @@ def df_clean_customer(
 
     filtered_customer = calculate_bbox_midpoint(filtered_customer)
     filtered_customer = format_datetime_column(filtered_customer)
+
+    assert current_cam, "current cam is not defined"
+
+    filtered_customer = filter_camera(filtered_customer, camera_name=current_cam)
+    filtered_customer = sort_df(filtered_customer, conf.CUSTOMER_INTEREST_SNAPSHOT)
 
     return filtered_customer
 
